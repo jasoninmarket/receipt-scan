@@ -4,8 +4,8 @@ import json
 from PIL import Image
 
 # Configure Gemini API (Replace with your API key)
-genai.configure(api_key="AIzaSyBmKp3dKS0Q-Wz8epZfpLvm3d1np_DJTJs")
-model = genai.GenerativeModel('gemini-pro-vision')
+genai.configure(api_key="YOUR_GEMINI_API_KEY")
+model = genai.GenerativeModel('gemini-1.5-flash-vision')  # Updated model name
 
 # Streamlit UI
 st.title("Clarity Rewards - Receipt Scanner")
