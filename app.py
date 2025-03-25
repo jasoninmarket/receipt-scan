@@ -1,11 +1,10 @@
 import streamlit as st
-import requests
-import io
-from PIL import Image
 import google.generativeai as genai
+import json
+from PIL import Image
 
 # Configure Gemini API (Replace with your API key)
-genai.configure(api_key="YOUR_GEMINI_API_KEY")
+genai.configure(api_key="AIzaSyBmKp3dKS0Q-Wz8epZfpLvm3d1np_DJTJs")
 model = genai.GenerativeModel('gemini-pro-vision')
 
 # Streamlit UI
@@ -38,11 +37,11 @@ if uploaded_file is not None:
             extracted_data = response.text
 
             try:
-                extracted_json = eval(extracted_data) #eval is unsafe for production, use json.loads.
+                extracted_json = json.loads(extracted_data) # Use json.loads for safety
                 st.success("Receipt data extracted successfully!")
                 st.json(extracted_json)
 
-            except:
+            except json.JSONDecodeError:
                 st.error("Gemini returned non-json data. Displaying raw text.")
                 st.write(extracted_data)
 
