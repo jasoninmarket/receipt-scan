@@ -1,10 +1,8 @@
 import streamlit as st
 import requests
 import base64
-import json
 import io
 from PIL import Image
-from google.cloud import bigquery
 
 # Streamlit UI
 st.title("Clarity Rewards - Receipt Scanner")
@@ -38,32 +36,3 @@ if uploaded_file is not None:
 
         except requests.exceptions.RequestException as e:
             st.error(f"Error connecting to backend: {e}")
-
-# Analytics section (example)
-st.header("User Analytics")
-
-user_id = st.text_input("Enter User ID for Analytics", value="user123")  # Default user
-
-if st.button("Get Analytics"):
-    try:
-        #Bigquery example. You will need to setup authentication.
-        client = bigquery.Client()
-        query = f"""
-        SELECT
-            EXTRACT(MONTH FROM date) AS month,
-            SUM(total) AS monthly_spending
-        FROM
-            `clarity_rewards_dataset.receipts_table`
-        WHERE
-            userId = '{user_id}'
-        GROUP BY
-            month
-        ORDER BY
-            month;
-        """
-        query_job = client.query(query)
-        results = query_job.result()
-        st.write(results.to_dataframe())
-
-    except Exception as e:
-        st.error(f"Error fetching analytics: {e}")
