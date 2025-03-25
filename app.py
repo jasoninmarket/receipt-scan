@@ -1,6 +1,5 @@
 import streamlit as st
 import requests
-import base64
 import io
 from PIL import Image
 import google.generativeai as genai
@@ -19,10 +18,6 @@ if uploaded_file is not None:
     st.image(image, caption="Uploaded Receipt", use_column_width=True)
 
     if st.button("Extract Receipt Data"):
-        # Convert image to base64 for Gemini
-        buffered = io.BytesIO()
-        image.save(buffered, format="JPEG")  # Or PNG, depending on your needs
-        img_bytes = buffered.getvalue()
 
         try:
             # Gemini prompt for receipt data extraction
@@ -35,9 +30,9 @@ if uploaded_file is not None:
             Return the result as a json object.
             """
 
-            # Gemini API call
-            response = model.generate_content([prompt, img_bytes])
-            response.raise_for_block_filter() # Ensure no unsafe content
+            # Gemini API call, directly sending the image object.
+            response = model.generate_content([prompt, image])
+            response.raise_for_block_filter() # Ensure no unsafe content.
 
             # Parse Gemini's JSON response
             extracted_data = response.text
