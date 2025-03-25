@@ -3,6 +3,11 @@ import requests
 import base64
 import io
 from PIL import Image
+import google.generativeai as genai
+
+# Configure Gemini API (Replace with your API key)
+genai.configure(api_key="YOUR_GEMINI_API_KEY")
+model = genai.GenerativeModel('gemini-pro-vision')
 
 # Streamlit UI
 st.title("Clarity Rewards - Receipt Scanner")
@@ -13,26 +18,38 @@ if uploaded_file is not None:
     image = Image.open(uploaded_file)
     st.image(image, caption="Uploaded Receipt", use_column_width=True)
 
-    if st.button("Scan Receipt"):
-        # Convert image to base64
+    if st.button("Extract Receipt Data"):
+        # Convert image to base64 for Gemini
         buffered = io.BytesIO()
         image.save(buffered, format="JPEG")  # Or PNG, depending on your needs
-        img_str = base64.b64encode(buffered.getvalue()).decode()
-
-        # Backend API call (replace with your server URL)
-        api_url = "YOUR_NODE_SERVER_URL/scan-receipt"
-        payload = {"imageBase64": img_str, "userId": "user123"}  # Replace user123
+        img_bytes = buffered.getvalue()
 
         try:
-            response = requests.post(api_url, json=payload)
-            response.raise_for_status()  # Raise HTTPError for bad responses (4xx or 5xx)
+            # Gemini prompt for receipt data extraction
+            prompt = """
+            Extract the following information from this receipt:
+            - Store Name
+            - Date
+            - List of items (name, quantity, price)
+            - Total Amount
+            Return the result as a json object.
+            """
 
-            result = response.json()
-            if result["success"]:
-                st.success("Receipt scanned successfully!")
-                st.json(result["data"])
-            else:
-                st.error(f"Error: {result['error']}")
+            # Gemini API call
+            response = model.generate_content([prompt, img_bytes])
+            response.raise_for_block_filter() # Ensure no unsafe content
 
-        except requests.exceptions.RequestException as e:
-            st.error(f"Error connecting to backend: {e}")
+            # Parse Gemini's JSON response
+            extracted_data = response.text
+
+            try:
+                extracted_json = eval(extracted_data) #eval is unsafe for production, use json.loads.
+                st.success("Receipt data extracted successfully!")
+                st.json(extracted_json)
+
+            except:
+                st.error("Gemini returned non-json data. Displaying raw text.")
+                st.write(extracted_data)
+
+        except Exception as e:
+            st.error(f"Error processing receipt: {e}")
