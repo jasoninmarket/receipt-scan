@@ -5,7 +5,7 @@ from PIL import Image
 
 # Configure Gemini API (Replace with your API key)
 genai.configure(api_key="AIzaSyBmKp3dKS0Q-Wz8epZfpLvm3d1np_DJTJs")
-model = genai.GenerativeModel('gemini-pro-vision')  # Updated model name
+model = genai.GenerativeModel('gemini-2.0-flash')  # Updated to latest model
 
 # Streamlit UI
 st.title("Clarity Rewards - Receipt Scanner")
