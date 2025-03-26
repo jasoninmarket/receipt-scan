@@ -31,7 +31,6 @@ if uploaded_file is not None:
 
             # Gemini API call, directly sending the image object.
             response = model.generate_content([prompt, image])
-            response.raise_for_block_filter() # Ensure no unsafe content.
 
             # Parse Gemini's JSON response
             extracted_data = response.text
